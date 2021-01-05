@@ -1,4 +1,7 @@
 
+Automatic statistics generator on basketballs video 
+
+
 The project is made by separate steps:
 
 1) detetection of the ball with yolo (run main_detection.py)  INPUT: video_file     			OUT: file txt in MOT format with the detection positions, output_video
