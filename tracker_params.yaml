@@ -1,0 +1,31 @@
+%YAML:1.0
+---
+my_object:
+   padding: 3.
+   template_size: 200.
+   gsl_sigma: 1.
+   hog_orientations: 9.
+   num_hog_channels_used: 18
+   hog_clip: 2.0000000298023224e-01
+   use_hog: 1
+   use_color_names: 1
+   use_gray: 0
+   use_rgb: 1
+   window_function: hann
+   kaiser_alpha: 3.7500000000000000e+00
+   cheb_attenuation: 45.
+   filter_lr: 1.9999999552965164e-02
+   admm_iterations: 4
+   number_of_scales: 33
+   scale_sigma_factor: 2.5000000000000000e-01
+   scale_model_max_area: 512.
+   scale_lr: 2.5000000372529030e-02
+   scale_step: 1.0199999809265137e+00
+   use_channel_weights: 1
+   weights_lr: 1.9999999552965164e-02
+   use_segmentation: 1
+   histogram_bins: 16
+   background_ratio: 2
+   histogram_lr: 3.9999999105930328e-02
+   psr_threshold: 7.5000000149011612e-02
+   #psr_threshold: 3.5000000149011612e-02   # threshold sotto il quale il tracker viene rilasciato

@@ -1,0 +1,11 @@
+-----------------possesso palla:------------------- 
+ 
+arbitro (frame/total_frame): 227 / 919      ->   24% 
+team A (frame/total_frame): 116 / 919       ->   12% 
+team B (frame/total_frame): 205 / 919       ->   22% 
+
+ 
+-----------------ball cumulative position:------------------- 
+ 
+SX (frame/total_frame): 116 / 919       ->   12% 
+DX (frame/total_frame): 637 / 919       ->   69% 
