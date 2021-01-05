@@ -161,7 +161,7 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
     (H, W) = img.shape[:2]
     global i
     i = cv2.resize(img, (int(W/3), int(H/3)))
-    cv2.putText(i,"select 2 extreme points of the middle line",(5,25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0, 255), 2)
+    cv2.putText(i,"select 2 extreme points of the middle line and press Q",(5,25), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     while True:
         # both windows are displaying the same img
         cv2.imshow("select 2 point of the center line", i)
