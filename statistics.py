@@ -136,17 +136,14 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
         os.remove(out_txt_file)
     except :
         None
-    f = open(out_txt_file, "a")
-
-    possesso_palla = np.array([0, 0, 0])
-    ball_cumulative_position = np.array([0, 0])
+    f = open(out_txt_file, "a")    
     
     # Input video
     video = cv2.VideoCapture(video_path)
 
     # Output video
     fourcc = cv2.VideoWriter_fourcc('m','p','4','v') #definisco formato output video mp4
-    out = cv2.VideoWriter('output-finale.mp4',fourcc, 30.0, (int(video.get(3)),int(video.get(4))),True) #definisco proprietà output video
+    out = cv2.VideoWriter('output-finale.mp4',fourcc, 30.0, (int(video.get(3)/2),int(video.get(4)/2)),True) #definisco proprietà output video
    
     
     if not video.isOpened():
@@ -173,6 +170,13 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
 
     ret = True
     
+    #variables for statistics:
+    possesso_palla = np.array([0, 0, 0])
+    ball_cumulative_position = np.array([0, 0])
+    last_valid_ball = []
+    storia_possesso_palla = []
+    
+
 
     while ret:
         #print("Frame: {}".format(frame_id))
@@ -198,25 +202,37 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
             draw_rect(image, coor,(10,255,255))
             
         
+        #--------statistica 1----------
         # possesso palla teams
-        if(len(boxes_ball) >0):
+        if(len(boxes_ball) >0) or (len(last_valid_ball) >0):
+            if(len(boxes_ball) >0):     # a new valid ball position from the det+tracker
+                last_valid_ball = boxes_ball
+            else:   #if the det+tracker doesn't find a ball use the last one position
+                boxes_ball = last_valid_ball
+                
+                
             ball_players_distance = []        
             for box in boxes_team:
                 ball_players_distance.append(distance_boxes(box,boxes_ball[0]))
             
             player_index = np.argmin(ball_players_distance)
                     
-            #cv2.line(image,(int(boxes_team[player_index][0]),int(boxes_team[player_index][1])),(int(boxes_ball[0][0]),int(boxes_ball[0][1])),(255,0,0),5)
             if(ball_players_distance[player_index]<200):
                 team_number = int(team_numbers[player_index])
-                possesso_palla[team_number] = possesso_palla[team_number] + 1
+                
+                storia_possesso_palla.append(team_number)
+                
+                #the current team number is defined as the most recurrent number in the last 5 frame
+                filtered_team_number = int(np.median(storia_possesso_palla[-10:]))
+                
+                possesso_palla[filtered_team_number] = possesso_palla[filtered_team_number] + 1
                 
                 image = draw_rect(image, boxes_team[player_index],(0,0,255))
-                if (team_numbers[player_index]) == 0:
+                if (filtered_team_number) == 0:
                     txt = "arbitro"
-                if (team_numbers[player_index]) == 1:
+                if (filtered_team_number) == 1:
                     txt = "squadra A"
-                if (team_numbers[player_index]) == 2:
+                if (filtered_team_number) == 2:
                     txt = "squadra B"
                 cv2.putText(
                     image, #numpy array on which text is written
@@ -225,8 +241,11 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
                     cv2.FONT_HERSHEY_SIMPLEX, #font family
                     1, #font size
                     (0, 0, 0, 255), #font color
-                    3) #font stroke
+                    3) #font stroke       
+                       
                 
+            
+            #-------statistica 2--------
             #posizione palla metà campo DX o SX
             line_points_arr = np.asarray(line_points)
             p1 =[coor[0],coor[1]]
@@ -236,14 +255,17 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
             else:
                 ball_cumulative_position[1] = ball_cumulative_position[1] +1
                 
+                
+            
+                
         #show image       
         
         image_to_show = cv2.resize(image, (1920, 1080))
         cv2.imshow("image",image_to_show)
         cv2.waitKey(1)
         
-
-        #out.write(image)    
+        i = cv2.resize(image, (int(W/2), int(H/2)))
+        out.write(i)    
 
         frame_id+=1
         
