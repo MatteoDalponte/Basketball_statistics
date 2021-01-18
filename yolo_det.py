@@ -56,7 +56,10 @@ def make_prediction(net, layer_names, labels, image, confidence, threshold):
     height, width = image.shape[:2]
     
     # Create a blob and pass it through the model
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),(0,0,0), swapRB=True, crop=False)
+    #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
+    #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (1024, 1024), swapRB=True, crop=False)
+    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (608, 608), swapRB=True, crop=False)
+    
     net.setInput(blob)
     outputs = net.forward(layer_names)
 
@@ -74,8 +77,8 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', type=str, default='model/yolov3.weights', help='Path to model weights')
     parser.add_argument('-cfg', '--config', type=str, default='model/yolov3.cfg', help='Path to configuration file')
     parser.add_argument('-l', '--labels', type=str, default='model/coco.names', help='Path to label file')
-    parser.add_argument('-c', '--confidence', type=float, default=0.3, help='Minimum confidence for a box to be detected.')
-    parser.add_argument('-t', '--threshold', type=float, default=0.1, help='Threshold for Non-Max Suppression')
+    parser.add_argument('-c', '--confidence', type=float, default=0.1, help='Minimum confidence for a box to be detected.')
+    parser.add_argument('-t', '--threshold', type=float, default=0.4, help='Threshold for Non-Max Suppression')
     parser.add_argument('-u', '--use_gpu', default=False, action='store_true', help='Use GPU (OpenCV must be compiled for GPU). For more info checkout: https://www.pyimagesearch.com/2020/02/03/how-to-use-opencvs-dnn-module-with-nvidia-gpus-cuda-and-cudnn/')
     parser.add_argument('-s', '--save', default=False, action='store_true', help='Whether or not the output should be saved')
     parser.add_argument('-sh', '--show', default=True, action="store_false", help='Show output')

@@ -113,6 +113,14 @@ def distance_boxes(box1,box2):
     distance = math.sqrt((center_box1[0]-center_box2[0])**2 + (center_box1[1]-center_box2[1])**2)
     return distance
 
+def circle_player(image, box1, radius):
+    p1_box1 = (int(box1[0]), int(box1[1]))
+    p2_box1 = (int(box1[0] + box1[2]), int(box1[1] + box1[3]))
+    center_box1 = (int((p1_box1[0]+p2_box1[0])/2),int((p1_box1[1]+p2_box1[1])/2))
+    cv2.circle(image, tuple(center_box1), radius, (0, 0, 200), 2)
+    
+    
+    
 
 line_points = []
 
@@ -140,6 +148,8 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
     
     # Input video
     video = cv2.VideoCapture(video_path)
+    fps = video.get(cv2.CAP_PROP_FPS)
+
 
     # Output video
     fourcc = cv2.VideoWriter_fourcc('m','p','4','v') #definisco formato output video mp4
@@ -176,6 +186,18 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
     last_valid_ball = []
     storia_possesso_palla = []
     
+    history_players_near_ball = []
+    
+    #per statistica 4
+    history_mean_dist_team1= []
+    history_mean_dist_team2= []
+    
+    ballDX = False
+    ballSX = False
+    history_distance_ball_center = []
+    
+    #per statistica 5:
+    pressione = np.array([0, 0])
 
 
     while ret:
@@ -217,7 +239,7 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
             
             player_index = np.argmin(ball_players_distance)
                     
-            if(ball_players_distance[player_index]<200):
+            if(ball_players_distance[player_index]<150):
                 team_number = int(team_numbers[player_index])
                 
                 storia_possesso_palla.append(team_number)
@@ -228,6 +250,9 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
                 possesso_palla[filtered_team_number] = possesso_palla[filtered_team_number] + 1
                 
                 image = draw_rect(image, boxes_team[player_index],(0,0,255))
+                
+                circle_player(image, boxes_team[player_index], 150)
+                
                 if (filtered_team_number) == 0:
                     txt = "arbitro"
                 if (filtered_team_number) == 1:
@@ -244,19 +269,126 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
                     3) #font stroke       
                        
                 
+                
+            #print possesso palla delle squadre:
+            image = cv2.rectangle(image, (50,50), (800, 120+(80 * 8)), (89, 89, 89), -1)         
+            image = cv2.rectangle(image, (50,50), (800, 120+(80 * 8)), (150, 50, 50), 5)            
+            
+                
+            image = cv2.putText(image, "POSSESSO PALLA (sec/tot)", (180, 120), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+            #arbitri
+            image = cv2.putText(image, "   Arbitri: "+str(int(possesso_palla[0]/fps))+" / " +str(int(frame_id/fps))+" s", (180, 120+(80 * 1)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+            #Team 1                
+            image = cv2.putText(image, "   Team 1: "+str(int(possesso_palla[1]/fps))+" / " +str(int(frame_id/fps))+" s", (180, 120 + (80 * 2)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)                        
+            #Team 2               
+            image = cv2.putText(image, "   Team 2: "+str(int(possesso_palla[2]/fps))+" / " +str(int(frame_id/fps))+" s", (180, 120 + (80 * 3)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+                
+                
             
             #-------statistica 2--------
             #posizione palla metà campo DX o SX
             line_points_arr = np.asarray(line_points)
             p1 =[coor[0],coor[1]]
             distance_ball_center = (np.cross(line_points_arr[0]-p1, p1-line_points_arr[1]))/np.linalg.norm(line_points_arr[0]-p1)
+            history_distance_ball_center.append(distance_ball_center)
             if(distance_ball_center<0):
                 ball_cumulative_position[0] = ball_cumulative_position[0] +1
+                ballDX = False
+                ballSX = True
+                image = cv2.putText(image, "POSIZIONE PALLA: SX", (180, 120 + (80 * 4)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+                
             else:
                 ball_cumulative_position[1] = ball_cumulative_position[1] +1
-                
+                ballDX = True
+                ballSX = False   
+                image = cv2.putText(image, "POSIZIONE PALLA: DX", (180, 120 + (80 * 4)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
                 
             
+            
+        #--------------statistica 4------------------
+                            
+        if(len(boxes_ball) >0):
+            attacco = False
+                
+            ball_team1_distance = []
+            ball_team2_distance = []
+            
+            number_of_value = 10  #number of value for mean
+            distance_search = 250   #how far i must search for a crowded frame
+            
+                           
+            for i, box in enumerate(boxes_team):
+                if int(team_numbers[i])==1 :
+                    ball_team1_distance.append(distance_boxes(box,boxes_ball[0]))
+                if int(team_numbers[i])==2 :
+                    ball_team2_distance.append(distance_boxes(box,boxes_ball[0]))
+                
+            history_mean_dist_team1.append(np.mean(ball_team1_distance))
+            history_mean_dist_team2.append(np.mean(ball_team2_distance)) 
+
+                
+            # with the history of all the players near the ball find the contropiede 
+            if  len(history_mean_dist_team1) > distance_search:
+                #media giocatori vicini alla palla per ogni squadra negli ultimi 5 frame
+                mean_team1 = np.mean(history_mean_dist_team1[-number_of_value:])
+                mean_team2 = np.mean(history_mean_dist_team2[-number_of_value:])             
+                  
+                if (mean_team1+mean_team2)/2 > 400: 
+                    #print("poco affollato:  mean:" +str((mean_team1+mean_team2)/2))
+                    last_50_dist_team1 = history_mean_dist_team1[-distance_search:-number_of_value]
+                    last_50_dist_team2 = history_mean_dist_team2[-distance_search:-number_of_value]                    
+                    
+                    frame_crowded = 0
+                    for i in range(len(last_50_dist_team1)):
+                            
+                        #verifica se in una posizione passata intorno alla palla c'erano alemeno 6 giocatori                   
+                        if((last_50_dist_team1[i]+last_50_dist_team2[i])/2)<300:
+                            frame_crowded += 1                        
+                        
+                    if frame_crowded > number_of_value and (filtered_team_number != 2 or filtered_team_number != 1):
+                        attacco = True
+                        #print("number of frame crowded befor a single player action:  "+str(frame_crowded))
+                        #print(np.gradient(history_distance_ball_center[-80:]))
+                        direction = np.mean(np.gradient(history_distance_ball_center[-80:]))
+                        
+                        
+                        image = cv2.rectangle(image, (int((W/2)-200),50), (int((W/2)+200), 300), (89, 89, 89),-1)
+                        image = cv2.rectangle(image, (int((W/2)-200),50), (int((W/2)+200), 300), (150, 50, 50),5) 
+                         
+                        cv2.putText(image,"Direction of Attack: ", (int((W/2)-150),100), cv2.FONT_HERSHEY_SIMPLEX, 1, (200,200,200),2)
+                        
+                        (H, W) = img.shape[:2]
+                        if direction>0:
+                            print("attacco a DX")
+                            cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2))+150, 200), (200,200,200), 8, tipLength=0.5)
+                            
+                            
+                        if direction<0:
+                            print("attacco a SX")
+                            cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2)-150), 200), (200,200,200), 8,tipLength=0.5)
+            
+            
+                    #--------statistica 5-----------
+                    #ricera zona affollata
+                
+            mean_team1 = np.mean(history_mean_dist_team1[-number_of_value:])
+            mean_team2 = np.mean(history_mean_dist_team2[-number_of_value:])
+            image = cv2.putText(image, "PRESSIONE", (180, 120 + (80 * 5)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+            if (mean_team1+mean_team2)/2 < 500:
+                print("affollato")
+                if ballSX :
+                    print("affollamento a SX")
+                    pressione[0] += 1
+                    cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2))+150, 200), (200,200,200), 8, tipLength=0.5)
+                    
+                    
+                if ballDX:
+                    print("affollamento dx")
+                    pressione[1] += 1
+                    cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2)-150), 200), (200,200,200), 8,tipLength=0.5)
+                    
+            image = cv2.putText(image, "   team 1 :"+str(int(pressione[1]/np.sum(pressione)*100)), (180, 120 + (80 * 7)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+            image = cv2.putText(image, "   team 2 : "+str(int(pressione[0]/np.sum(pressione)*100)), (180, 120 + (80 * 6)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
                 
         #show image       
         
@@ -282,6 +414,12 @@ def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):
     f.write(txt4)
     txt5 = "DX (frame/total_frame): "+str(ball_cumulative_position[1])+" / "+ str(frame_id)+"       ->   "+str(int(ball_cumulative_position[1]/frame_id*100)) +"% \n"
     f.write(txt5)
+    
+    f.write("\n \n-----------------pressione difesa:------------------- \n \n")
+    txt6 = "affollamenti a SX: "+str(pressione[0])+" / "+ str(frame_id)+"       ->   "+str(int(pressione[1]/np.sum(pressione)*100)) +"% \n"
+    f.write(txt6)
+    txt7 = "affollamenti a SX:: "+str(pressione[1])+" / "+ str(frame_id)+"       ->   "+str(int(pressione[0]/np.sum(pressione)*100)) +"% \n"
+    f.write(txt7)
     
     out.release()
 
