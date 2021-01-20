@@ -130,7 +130,7 @@ def draw_blue_circle(event, x, y, flags, param):
         #radius = calc_distance((x, y), center)     
         cv2.circle(i, (x,y), 2, (255, 0, 0), 2)
         line_points.append((x*3,y*3))
-
+        
 
 
 def stats(video_path, ball_tracking_path, team_detection_path, out_txt_file):

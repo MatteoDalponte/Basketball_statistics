@@ -13,5 +13,5 @@ DX (frame/total_frame): 686 / 919       ->   74%
  
 -----------------pressione difesa:------------------- 
  
-affollamenti a SX: 12 / 919       ->   96% 
-affollamenti a SX:: 298 / 919       ->   3% 
+affollamenti a SX: 13 / 919       ->   95% 
+affollamenti a SX:: 297 / 919       ->   4% 
