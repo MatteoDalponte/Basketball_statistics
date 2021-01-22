@@ -4,8 +4,7 @@ import numpy as np
 import cv2
 import math
 
-from utilsStats import *
-
+from utility.utils_stats import *
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
@@ -13,10 +12,10 @@ ROOT_DIR = os.path.abspath("../../")
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
 
-
-
 class Statistics:
     def __init__(self):
+        self.line_points = []
+
         #variables for statistics 1:
         self.possesso_palla = np.array([0, 0, 0])
         self.ball_cumulative_position = np.array([0, 0])
@@ -37,8 +36,32 @@ class Statistics:
         #per statistica 5:
         self.pressione = np.array([0, 0])
         
+    def initialize(self, img):
+        cv2.namedWindow("select 2 point of the center line")
+        cv2.setMouseCallback("select 2 point of the center line", self.draw_line) # param = None
+
+        (H, W) = img.shape[:2]
+
+        global i
+        i = cv2.resize(img, (int(W/3), int(H/3)))
+        cv2.putText(i,"select 2 extreme points of the middle line and press Q",(5,25), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+        while True:
+            # both windows are displaying the same img
+            cv2.imshow("select 2 point of the center line", i)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+        cv2.destroyAllWindows()
         
+        print(self.line_points)
         
+    def draw_line(self, event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            #center = (100,100)
+            #radius = calc_distance((x, y), center)     
+            cv2.circle(i, (x,y), 2, (255, 0, 0), 2)
+            self.line_points.append((x*3,y*3))
+
     def generate_file(self,f, frame_id):
         #save stat 1
         f.write("-----------------possesso palla:------------------- \n \n")
@@ -63,8 +86,6 @@ class Statistics:
         
       
         return f
-    
-        
         
     def stat1(self,image,boxes_ball,boxes_team,team_numbers,fps,frame_id):
      #--------statistica 1----------
@@ -140,7 +161,7 @@ class Statistics:
                 boxes_ball = self.last_valid_ball
                 
         coor = boxes_ball[0]
-        line_points_arr = np.asarray(line_points)
+        line_points_arr = np.asarray(self.line_points)
         p1 =[coor[0],coor[1]]
         distance_ball_center = (np.cross(line_points_arr[0]-p1, p1-line_points_arr[1]))/np.linalg.norm(line_points_arr[0]-p1)
         self.history_distance_ball_center.append(distance_ball_center)
@@ -252,41 +273,27 @@ class Statistics:
                 self.pressione[1] += 1
                 cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2)-150), 200), (200,200,200), 8,tipLength=0.5)
                 
-        image = cv2.putText(image, "   team 1 :"+str(int(self.pressione[1]/np.sum(self.pressione)*100)), (180, 120 + (80 * 7)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
-        image = cv2.putText(image, "   team 2 : "+str(int(self.pressione[0]/np.sum(self.pressione)*100)), (180, 120 + (80 * 6)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+        if np.sum(self.pressione) > 0:
+            image = cv2.putText(image, "   team 1 :"+str(int(self.pressione[1]/np.sum(self.pressione)*100)), (180, 120 + (80 * 7)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
+            image = cv2.putText(image, "   team 2 : "+str(int(self.pressione[0]/np.sum(self.pressione)*100)), (180, 120 + (80 * 6)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
         
         return image
-    
-    
 
-    def run_stats(self,image,boxes_ball,boxes_team,team_numbers,line_points,fps,frame_id):
+    def run_stats(self,image,boxes_ball,boxes_team,team_numbers,fps,frame_id):
         #chiamata statistica 1            
         image = self.stat1(image,boxes_ball,boxes_team,team_numbers,fps,frame_id)
         
         #chiamata statistica 2        
-        image = self.stat2(image,boxes_ball,line_points)
+        image = self.stat2(image, boxes_ball, self.line_points)
         
         #chiamata statistica 4
         image = self.stat4(image,boxes_ball,boxes_team,team_numbers)   
         
         #chiamata statistica 5
-        image = self.stat5(image)   
-        
-        
-        
-   
+        image = self.stat5(image)
 
-line_points = []
-
-def draw_blue_circle(event, x, y, flags, param):
-    if event == cv2.EVENT_LBUTTONDOWN:
-        #center = (100,100)
-        #radius = calc_distance((x, y), center)     
-        cv2.circle(i, (x,y), 2, (255, 0, 0), 2)
-        line_points.append((x*3,y*3))
+        return image
         
-   
-  
 
 def run_all(video_path, ball_tracking_path, team_detection_path, out_txt_file):
     ball_dict = get_dict(ball_tracking_path)
@@ -294,11 +301,9 @@ def run_all(video_path, ball_tracking_path, team_detection_path, out_txt_file):
     
     frame_id = 1
        
-    
     # Input video
     video = cv2.VideoCapture(video_path)
     fps = video.get(cv2.CAP_PROP_FPS)
-
 
     # Output video
     fourcc = cv2.VideoWriter_fourcc('m','p','4','v') #definisco formato output video mp4
@@ -309,27 +314,13 @@ def run_all(video_path, ball_tracking_path, team_detection_path, out_txt_file):
         print ("Could not open video")
         sys.exit()
      
-    
-    #acquisisci linea metà campo
-    cv2.namedWindow("select 2 point of the center line")
-    cv2.setMouseCallback("select 2 point of the center line", draw_blue_circle) # param = None
-    ret, img = video.read()
-    (H, W) = img.shape[:2]
-    global i
-    i = cv2.resize(img, (int(W/3), int(H/3)))
-    cv2.putText(i,"select 2 extreme points of the middle line and press Q",(5,25), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-    while True:
-        # both windows are displaying the same img
-        cv2.imshow("select 2 point of the center line", i)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-    cv2.destroyAllWindows()
-    
-    print(line_points)
-
-    ret = True
-    
+        
     stat = Statistics ()
+    
+    ret, img = video.read()
+    stat.initialize(img)
+    
+    ret = True   
     
     while ret:
         
@@ -355,18 +346,16 @@ def run_all(video_path, ball_tracking_path, team_detection_path, out_txt_file):
             draw_rect(image, coor,(10,255,255))
           
             
-        stat.run_stats(image,boxes_ball,boxes_team,team_numbers,line_points,fps,frame_id)
+        stat.run_stats(image,boxes_ball,boxes_team,team_numbers,fps,frame_id)
         
-        
-        
+                
         image_to_show = cv2.resize(image, (1920, 1080))
         cv2.imshow("image",image_to_show)
         cv2.waitKey(1)
         
+        (H, W) = image.shape[:2]
         i = cv2.resize(image, (int(W/2), int(H/2)))
-        out.write(i)    
-        
-        
+        out.write(i) 
         
         frame_id+=1
         
