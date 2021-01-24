@@ -57,8 +57,9 @@ def make_prediction(net, layer_names, labels, image, confidence, threshold):
     
     # Create a blob and pass it through the model
     #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
-    #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (1024, 1024), swapRB=True, crop=False)
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (608, 608), swapRB=True, crop=False)
+    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (1024, 1024), swapRB=True, crop=False)
+    #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (608, 608), swapRB=True, crop=False)
+    #lob = cv2.dnn.blobFromImage(image, 1 / 255.0, (832, 832), swapRB=True, crop=False)
     
     net.setInput(blob)
     outputs = net.forward(layer_names)
@@ -168,6 +169,7 @@ if __name__ == '__main__':
                 box = boxes[ball_index]
                 
                 f.write('{},-1,{},{},{},{},{},-1,-1,-1\n'.format(nframe, box[0], box[1], box[2], box[3], confidences[ball_index]))
+                print("detection!")
                 
     
             image = draw_bounding_boxes(image, boxes, confidences, classIDs, idxs, colors)

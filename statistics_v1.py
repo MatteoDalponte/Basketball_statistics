@@ -53,7 +53,7 @@ class Statistics:
                 break
         cv2.destroyAllWindows()
         
-        print(self.line_points)
+        #print(self.line_points)
         
     def draw_line(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -236,12 +236,12 @@ class Statistics:
                         
                         
                         if direction>0:
-                            print("attacco a DX")
+                           # print("attacco a DX")
                             cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2))+150, 200), (200,200,200), 8, tipLength=0.5)
                             
                             
                         if direction<0:
-                            print("attacco a SX")
+                            #print("attacco a SX")
                             cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2)-150), 200), (200,200,200), 8,tipLength=0.5)
                             
         return image
@@ -261,23 +261,23 @@ class Statistics:
         mean_team2 = np.mean(self.history_mean_dist_team2[-number_of_value:])
         image = cv2.putText(image, "PRESSIONE", (180, 120 + (80 * 5)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
         if (mean_team1+mean_team2)/2 < 500:
-            print("affollato")
+           # print("affollato")
             if self.ballSX :
-                print("affollamento a SX")
-                self.pressione[0] += 1
-                cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2))+150, 200), (200,200,200), 8, tipLength=0.5)
+                #print("affollamento a SX")
+                self.pressione[0] += 1                
                 
                 
             if self.ballDX:
-                print("affollamento dx")
+                #print("affollamento dx")
                 self.pressione[1] += 1
-                cv2.arrowedLine(image, (int((W/2)), 200), (int((W/2)-150), 200), (200,200,200), 8,tipLength=0.5)
+                
                 
         if np.sum(self.pressione) > 0:
             image = cv2.putText(image, "   team 1 :"+str(int(self.pressione[1]/np.sum(self.pressione)*100)), (180, 120 + (80 * 7)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
             image = cv2.putText(image, "   team 2 : "+str(int(self.pressione[0]/np.sum(self.pressione)*100)), (180, 120 + (80 * 6)), cv2.FONT_HERSHEY_COMPLEX, 1, (200,200,200), 2)
         
         return image
+    
 
     def run_stats(self,image,boxes_ball,boxes_team,team_numbers,fps,frame_id):
         #chiamata statistica 1            
