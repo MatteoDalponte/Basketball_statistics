@@ -7,8 +7,8 @@ team B (frame/total_frame): 281 / 919       ->   30%
  
 -----------------ball cumulative position:------------------- 
  
-SX (frame/total_frame): 232 / 919       ->   25% 
-DX (frame/total_frame): 686 / 919       ->   74% 
+SX (frame/total_frame): 686 / 919       ->   74% 
+DX (frame/total_frame): 232 / 919       ->   25% 
 
  
 -----------------pressione difesa:------------------- 

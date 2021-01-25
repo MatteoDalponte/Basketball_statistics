@@ -1,14 +1,9 @@
- #________________________ !!!!funzioni di supporto alle statisitche!!!!________________________       
-   
-
 import os
 import sys
-
 import numpy as np
 import cv2
 import math     
         
-
 def get_gt(image, frame_id, gt_dict):
     if frame_id not in gt_dict.keys() or gt_dict[frame_id]==[]:
         return [], [], [], [], []
@@ -35,7 +30,6 @@ def get_gt(image, frame_id, gt_dict):
 
     return detections,out_scores,ids, complete, team
 
-
 # conversion of the file txt to dictionary NOTE: modified to return the team number
 def get_dict(filename):
     with open(filename) as f:    
@@ -61,7 +55,6 @@ def get_dict(filename):
         
     return gt_dict
 
-
 def draw_players(frame, boxes_team,team_numbers):
     for i, box in enumerate(boxes_team):
         coor = boxes_team[i]
@@ -81,13 +74,11 @@ def draw_players(frame, boxes_team,team_numbers):
     return frame
 
 def draw_rect(frame, coor,colour):
-   
         p1 = (int(coor[0]), int(coor[1]))
         p2 = (int(coor[0] + coor[2]), int(coor[1] + coor[3]))
         cv2.rectangle(frame, p1, p2, colour, 7, 3)
         
-        return frame
-        
+        return frame      
 
 def distance_boxes(box1,box2):
     p1_box1 = (int(box1[0]), int(box1[1]))
@@ -97,8 +88,7 @@ def distance_boxes(box1,box2):
     p1_box2 = (int(box2[0]), int(box2[1]))
     p2_box2 = (int(box2[0] + box2[2]), int(box2[1] + box2[3]))
     center_box2 = (int((p1_box2[0]+p2_box2[0])/2),int((p1_box2[1]+p2_box2[1])/2))
-            
-            
+                    
     distance = math.sqrt((center_box1[0]-center_box2[0])**2 + (center_box1[1]-center_box2[1])**2)
     return distance
 
@@ -107,5 +97,9 @@ def circle_player(image, box1, radius):
     p2_box1 = (int(box1[0] + box1[2]), int(box1[1] + box1[3]))
     center_box1 = (int((p1_box1[0]+p2_box1[0])/2),int((p1_box1[1]+p2_box1[1])/2))
     cv2.circle(image, tuple(center_box1), radius, (0, 0, 200), 2)
-    
+
+def ball_position(line_a, line_b, point):
+    if line_a[1] < line_b[1]:
+        line_a, line_b = line_b, line_a
+    return np.sign((line_b[0] - line_a[0])*(point[1] - line_a[1]) - (line_b[1] - line_a[1])*(point[0]- line_a[0]))
     
