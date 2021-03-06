@@ -6,11 +6,6 @@ import math
 
 from utility.stat_utility import *
 
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
-
-# Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
 
 class Statistics:
     def __init__(self):
@@ -193,8 +188,11 @@ class Statistics:
             ball_team1_distance = []
             ball_team2_distance = []
             
+            #number_of_value = 10  #number of value for mean
+            #distance_search = 250   #how far i must search for a crowded frame
+            
             number_of_value = 10  #number of value for mean
-            distance_search = 250   #how far i must search for a crowded frame
+            distance_search = 500  #how far i must search for a crowded frame
                           
             for i, box in enumerate(boxes_team):
                 if int(team_numbers[i]) == 1 :
@@ -212,7 +210,7 @@ class Statistics:
                 mean_team2 = np.mean(self.history_mean_dist_team2[-number_of_value:])             
                   
                 if (mean_team1 + mean_team2) / 2 > 400: 
-                    #print("poco affollato:  mean:" +str((mean_team1+mean_team2)/2))
+                    print("poco affollato:  mean:" +str((mean_team1+mean_team2)/2))
                     last_50_dist_team1 = self.history_mean_dist_team1[-distance_search:-number_of_value]
                     last_50_dist_team2 = self.history_mean_dist_team2[-distance_search:-number_of_value]                    
                     
@@ -224,7 +222,7 @@ class Statistics:
                         
                     if frame_crowded > number_of_value and (self.filtered_team_number != 2 or self.filtered_team_number != 1):
                         attacco = True
-                        #print("number of frame crowded befor a single player action:  "+str(frame_crowded))
+                        print("number of frame crowded befor a single player action:  "+str(frame_crowded))
                         #print(np.gradient(history_distance_ball_center[-80:]))
                         direction = np.mean(np.gradient(self.history_distance_ball_center[-80:]))
 

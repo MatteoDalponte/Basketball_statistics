@@ -12,16 +12,6 @@ from imutils.video import FPS
 import math
 
 
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
-
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
-# Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
-
-
-
 def get_gt(image, frame_id, gt_dict):
     if frame_id not in gt_dict.keys() or gt_dict[frame_id]==[]:
         return [], [], [], []

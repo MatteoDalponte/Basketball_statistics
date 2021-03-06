@@ -1,4 +1,5 @@
 weights/
+input_video/
 output/
 *.mp4
 *.MP4
