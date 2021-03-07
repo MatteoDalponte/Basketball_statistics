@@ -56,10 +56,10 @@ def make_prediction(net, layer_names, labels, image, confidence, threshold):
     height, width = image.shape[:2]
     
     # Create a blob and pass it through the model
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
+    #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
     #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (1024, 1024), swapRB=True, crop=False)
     #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (608, 608), swapRB=True, crop=False)
-    #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (832, 832), swapRB=True, crop=False)
+    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (832, 832), swapRB=True, crop=False)
     
     net.setInput(blob)
     outputs = net.forward(layer_names)
