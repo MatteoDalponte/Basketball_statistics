@@ -4,7 +4,7 @@
 ![statistic generation example](stat_example.png)
 ![structure of the project](project_structure.png)
 
-# **To use this code:** <h2>
+# To use this code: <h3>
 1. Install the maskrcnn requirements (mask_rcnn_UPG_x_playerDetection/requirements.txt    + python setup.py)
 2. Install opencv & numpy (per yolo, trackerCSRT)
 
@@ -17,7 +17,7 @@
 NOTE: tests performed on: python 3.8.3, opencv 4.4.0, tensorflow:2.3.1 
 
 
-#**The framework can be run in separate steps (look at the image on top of this page to understand the main parts of the framework):** <h2>
+#The framework can be run in separate steps (look at the image on top of this page to understand the main parts of the framework): <h3>
 
 1. **detetection of the ball with yolo** (execute: run_ball_detector.sh)
 INPUT: video_file
