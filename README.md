@@ -17,23 +17,23 @@
 NOTE: tests performed on: python 3.8.3, opencv 4.4.0, tensorflow:2.3.1 
 
 
-#The framework can be run in separate steps (look at the image on top of this page to understand the main parts of the framework): <h3>
+# The framework can be run in separate steps (look at the image on top of this page to understand the main parts of the framework): <h3>
 
-1. **detetection of the ball with yolo** (execute: run_ball_detector.sh)
-INPUT: video_file
-OUT: file txt in MOT format with the detection positions, output_video
+1. **detetection of the ball with yolo** (execute: run_ball_detector.sh)<br/>
+INPUT: video_file<br/>
+OUT: file txt in MOT format with the detection positions, output_video<br/>
 
-1. **ball tracking and interpolation** (execute: run_ball_tracker.sh)	
-INPUT: video_file, detection_txt_file
-OUT: file txt with tracking, output_video
+1. **ball tracking and interpolation** (execute: run_ball_tracker.sh)<br/>	
+INPUT: video_file, detection_txt_file<br/>
+OUT: file txt with tracking, output_video<br/>
 
-2. **players detection**  (execute: run_player_detection-sh)
-INPUT: video_file
-OUT: file txt with player divided by teams, output_video
+2. **players detection**  (execute: run_player_detection-sh)<br/>
+INPUT: video_file<br/>
+OUT: file txt with player divided by teams, output_video<br/>
 
-3. **statistics generation**	(execute: run_stats.sh)
-INPUT: video, players_det_txt_file, ball_tracking_file
-OUT: stats.txt, out_video
+3. **statistics generation**	(execute: run_stats.sh)<br/>
+INPUT: video, players_det_txt_file, ball_tracking_file<br/>
+OUT: stats.txt, out_video<br/>
 
 If you have doubts about the execution of the .sh files please open them and read the comments and the program call.
 
