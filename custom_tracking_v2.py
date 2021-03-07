@@ -50,6 +50,8 @@ class Tracker:
         
         #frame = draw_bbox(frame, [], complete, show_label=False, tracking=True)
 
+
+	#caso 1: tracker non inizializzato, Bounding Box di inizio = none... alla prima detection inizializzo il tracker
         if self.initBB is None:            
             
             self.tracker = cv2.TrackerCSRT_create()
@@ -66,7 +68,7 @@ class Tracker:
                     self.tracker.init(frame, self.initBB)
                     fps = FPS().start()
                 
-
+	# detection presente, faccio un update del tracker (passo il nuovo  frame) 
         if self.initBB is not None: # vuol dire che è già stata fatta una prima detection
             (success, tracked_box) = self.tracker.update(frame)
 
@@ -82,7 +84,7 @@ class Tracker:
                 print("tracking ha perso il targhet! in attesa di reinizializzazione")
         
         
-        
+        #caso 2 detection e tracker sono presenti... calcolo la distanza euclidea tra posizione della detection ed il tracker
         if (self.initBB is not None and len(boxes)>0):
             p1_tracker = (int(tracked_box[0]), int(tracked_box[1]))
             p2_tracker = (int(tracked_box[0] + tracked_box[2]), int(tracked_box[1] + tracked_box[3]))
@@ -103,7 +105,7 @@ class Tracker:
             print(self.history_distance[-5:])
             
             
-            #if distance*scores[0] >50:  # in pixel: distanza tra tracking e detection è troppo elevata reinizializzo il tracking
+             # se per ben 2 frame la distanza tra tracking e detection è troppo elevata reinizializzo il tracking
             if self.history_distance[-1]>20 and self.history_distance[-2]>30:
                 
                 self.history_distance[-1] = 0
@@ -130,6 +132,7 @@ class Tracker:
             
 
 
+#funziona chiamata ad ogni frame per ottenere la posizone del pallon... chamata a get_gt passando il frameID ed il dizionario ottenuto con get_dict
 def get_gt(image, frame_id, gt_dict):
     if frame_id not in gt_dict.keys() or gt_dict[frame_id]==[]:
         return [], [], [], []
@@ -155,7 +158,7 @@ def get_gt(image, frame_id, gt_dict):
     return detections,out_scores,ids, complete
 
 
-
+# dato il file MOTA ottieni il dizionario contenente tutte le detection:
 def get_dict(filename):
     with open(filename) as f:    
         d = f.readlines()
@@ -207,7 +210,7 @@ def opencv_tracking(video_path, detection_path, out_txt_file):
     fps = None
     
     tracker = Tracker()
-
+	#ad ogni frame....
     while ret:
         print("Frame: {}".format(frame_id))
         ret, frame = video.read()

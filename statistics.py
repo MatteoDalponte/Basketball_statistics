@@ -31,7 +31,8 @@ class Statistics:
         
         #per statistica 5:
         self.pressione = np.array([0, 0])
-        
+    
+    #funzione di inizializzazione per acquisire la linea mi metà campo....    
     def initialize(self, img, resize):
         self.resize = resize
 
@@ -58,6 +59,7 @@ class Statistics:
             #radius = calc_distance((x, y), center)     
             cv2.circle(i, (x, y), 2, (255, 0, 0), 2)
             self.line_points.append((int((x*3)/self.resize), int((y*3)/self.resize)))
+
 
     def generate_file(self,f, frame_id):
         f.write("-----------------possesso palla:------------------- \n \n")

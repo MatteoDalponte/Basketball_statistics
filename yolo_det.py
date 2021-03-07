@@ -56,6 +56,7 @@ def make_prediction(net, layer_names, labels, image, confidence, threshold):
     height, width = image.shape[:2]
     
     # Create a blob and pass it through the model
+    #note: il parametro (832,832) dipende dalla grandezza della rete allenata.... MA: se uso 1024*1024 non ci sono problemi ed anzi migliora la detection? perchè??
     #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
     #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (1024, 1024), swapRB=True, crop=False)
     #blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (608, 608), swapRB=True, crop=False)
